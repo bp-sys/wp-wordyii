@@ -2,7 +2,7 @@
 
 namespace wordyii\base;
 
-abstract class Model {
+abstract class WordyiiModel {
 
     /**
     * Create an object on database

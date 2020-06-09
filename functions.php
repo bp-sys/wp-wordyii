@@ -9,10 +9,10 @@ define( 'WORDYII_FILE', __FILE__ );
 
 require_once(WORDYII_PATH . 'wordyii/database/database.php');
 require_once(WORDYII_PATH . 'functions.php');
-require_once(WORDYII_PATH . 'base/Behavior.php');
-require_once(WORDYII_PATH . 'wordyii/behaviors/AcessBehavior.php');
-require_once(WORDYII_PATH . 'base/Controller.php');
-require_once(WORDYII_PATH . 'base/View.php');
+require_once(WORDYII_PATH . 'base/WordyiiBehavior.php');
+require_once(WORDYII_PATH . 'wordyii/behaviors/WordyiiAccessBehavior.php');
+require_once(WORDYII_PATH . 'base/WordyiiController.php');
+require_once(WORDYII_PATH . 'base/WordyiiView.php');
 // Include page templates
 require_once(WORDYII_PATH . 'wordyii/views/pagetemplater.php' );
 

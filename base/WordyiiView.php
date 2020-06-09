@@ -2,7 +2,7 @@
 
 namespace wordyii\base;
 
-class View
+class WordyiiView
 {
 
     /**
@@ -37,8 +37,9 @@ class View
         try {
 
             // Remove controller from the object
-            $teste = str_replace('Controller', '', $this->calledClass);
-            $rest = explode("\\", $teste);
+            $str = str_replace('Controller', '', $this->calledClass);
+            $str = str_replace('Wordyii', '', $str);
+            $rest = explode("\\", $str);
             // Take the last result from array
             $controllerName = end($rest);
             $controllerName = strtolower($controllerName);

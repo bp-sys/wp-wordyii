@@ -2,10 +2,10 @@
 
 namespace wordyii\controllers;
 
-use wordyii\base\Controller;
-use wordyii\base\View;
+use wordyii\base\WordyiiController;
+use wordyii\base\WordyiiView;
 
-class ExampleController extends Controller
+class WordyiiExampleController extends WordyiiController
 {
 
     public function behaviors()
@@ -13,7 +13,7 @@ class ExampleController extends Controller
         return [
             'acess' => [
                 'class' => [
-                    'value' => 'acess',
+                    'value' => 'wordyiiaccess',
                     'path' => '\wordyii\behaviors\\',
                 ],
                 'allow' => true,

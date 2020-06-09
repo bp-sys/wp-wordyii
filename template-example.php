@@ -7,8 +7,8 @@ if ( ! defined( 'ABSPATH' ) ) {
   exit;
 }
 
-require_once( CHILD_THEME_PATH .'/wordyii/controllers/ExampleController.php' );
+require_once( CHILD_THEME_PATH .'/wordyii/controllers/WordyiiExampleController.php' );
 
-$controller = new \wordyii\controllers\ExampleController();
+$controller = new \wordyii\controllers\WordyiiExampleController();
 $controller->run();
 

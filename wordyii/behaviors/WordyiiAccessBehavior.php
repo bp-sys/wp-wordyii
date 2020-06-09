@@ -2,7 +2,7 @@
 
 namespace wordyii\behaviors;
 
-class AcessBehavior
+class WordyiiAccessBehavior
 {
     /**
      * Allowed params: allow, actions, roles, permissions.
@@ -27,9 +27,19 @@ class AcessBehavior
             // Set default allow true
             $allow = true;
 
-            if ($attribute == 'allow' ) {
-
+            if ($value === true ) {
+                return true;
             }
+
+            if ($attribute == 'roles' && is_array($value) ) {
+                
+            }
+
+            if ($attribute == 'actions' && is_array($value)) {
+                $action = $value;
+            }
+
+
 
         }
 

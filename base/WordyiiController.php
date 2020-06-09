@@ -2,10 +2,10 @@
 
 namespace wordyii\base;
 
-use wordyii\base\View;
-use wordyii\base\Behavior;
+use wordyii\base\WordyiiView;
+use wordyii\base\WordyiiBehavior;
 
-class Controller
+class WordyiiController
 {
     /**
      * Run the controller functions
@@ -16,7 +16,7 @@ class Controller
      */
     public function run()
     {
-        new Behavior( $this->behaviors() );
+        new WordyiiBehavior( $this->behaviors() );
 
         $this->beforeAction();
         $this->runAction();
@@ -28,7 +28,9 @@ class Controller
      */
     public function behaviors()
     {
-        return [];
+        return [
+            
+        ];
     }
 
     /**
@@ -77,6 +79,7 @@ class Controller
             echo $e;
         }
         
+        return null;
     }
 
     /**
@@ -92,7 +95,7 @@ class Controller
      */
     public function render($viewName)
     {
-        $view = new View( get_called_class() );
+        $view = new WordyiiView( get_called_class() );
         $view->render($viewName);
     }
 

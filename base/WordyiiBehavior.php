@@ -2,7 +2,7 @@
 
 namespace wordyii\base;
 
-class Behavior
+class WordyiiBehavior
 {
     public $params;
 
@@ -30,12 +30,11 @@ class Behavior
 
                 // Receive the name class with namespace
                 $class = $namespace . $behaviorClass . 'Behavior';
-                
+
                 // Starts the class passing your parameters
                 new $class( $value );
             }
         }
-
     }
 
     /**
@@ -47,18 +46,21 @@ class Behavior
 
         try {
 
-            $path = WORDYII_PATH . $namespace . $param . 'Behavior.php';
+            $path = WORDYII_PATH . 'Wordyii' . $namespace . $param . 'Behavior.php';
+            $path = WORDYII_PATH . '/wordyii/behaviors/WordyiiAccessBehavior.php';
+
+            var_dump(file_exists($path));
 
             if ( file_exists($path) ) {
                 return true;
             }
-            
+
             throw new \Exception("Behavior class does not exist");
 
         } catch (\Exception $e) {
             echo $e;
-            return false;
         }
-
+        
+        return false;
     }
 }
