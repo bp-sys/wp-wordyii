@@ -9,7 +9,7 @@ class WordyiiBehavior
     /**
      * Create the object class called by controller function behaviors
      */
-    public function __construct($params)
+    public function __construct($params, $action = null)
     {
 
         $this->params = $params;
@@ -29,10 +29,10 @@ class WordyiiBehavior
             if ( $this->findBehaviorFile($behaviorClass, $namespace) ) {
 
                 // Receive the name class with namespace
-                $class = $namespace . $behaviorClass . 'Behavior';
+                $class = $namespace . $behaviorClass;
 
                 // Starts the class passing your parameters
-                new $class( $value );
+                $obj = new $class( $value, $action );
             }
         }
     }
@@ -46,10 +46,7 @@ class WordyiiBehavior
 
         try {
 
-            $path = WORDYII_PATH . 'Wordyii' . $namespace . $param . 'Behavior.php';
-            $path = WORDYII_PATH . '/wordyii/behaviors/WordyiiAccessBehavior.php';
-
-            var_dump(file_exists($path));
+            $path = WORDYII_PATH . $namespace . $param . '.php';
 
             if ( file_exists($path) ) {
                 return true;
@@ -64,3 +61,4 @@ class WordyiiBehavior
         return false;
     }
 }
+

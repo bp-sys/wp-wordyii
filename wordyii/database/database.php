@@ -48,3 +48,4 @@ function wordyii_database_update( $current_db_ver = null ) {
 
     return false;
 }
+

@@ -11,13 +11,24 @@ class WordyiiExampleController extends WordyiiController
     public function behaviors()
     {
         return [
-            'acess' => [
+        
+            'access' => [
                 'class' => [
-                    'value' => 'wordyiiaccess',
-                    'path' => '\wordyii\behaviors\\',
+                    'path' => '\wordyii\behaviors',
+                    'value' => '\wordyiiaccessbehavior',
                 ],
-                'allow' => true,
-                'roles' => ['admin'],
+                'rules' => [
+                    [
+                        'allow' => true,
+                        'roles' => ['administrator'],
+                    ],[
+                        'allow' => true,
+                        'actions' => ['index'],
+                        'roles' => ['gabriel'],
+                    ],[
+                        'allow' => false,
+                    ]
+                ]
             ]
         ];
     }

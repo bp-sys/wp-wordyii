@@ -4,6 +4,16 @@ namespace wordyii\behaviors;
 
 class WordyiiAccessBehavior
 {
+    
+    public function __construct($access, $action)
+    {
+
+        $this->access = $access;
+        $this->action = $action;
+
+        var_dump ($this->run() );
+    }
+
     /**
      * Allowed params: allow, actions, roles, permissions.
      * 
@@ -12,38 +22,69 @@ class WordyiiAccessBehavior
      * {
      *      return [
      *          'acess' => [
-     *              'allow' => true,
-     *              'roles' => ['admin'],
-     *              'actions' => ['index'],
+     *              'class' => [
+     *                      'path' => '\wordyii\behaviors',
+     *                      'value' => 'wordyiiaccessbehavior',
+     *               ],
+     *              'rules' => [
+     *                  [
+     *                      'allow' => true,
+     *                      'roles' => ['administrator'],
+     *                      'actions' => ['login'],
+     *                  ],[
+     *                      'allow' => false
+     *                  ]
+     *              ]
      *          ]
      *      ];
      * }
      */
-    public function __construct($params)
+    public function run()
     {
+        $allow = false;
 
-        foreach ($params as $attribute => $value) {
+        $user = wp_get_current_user();
 
-            // Set default allow true
-            $allow = true;
+        $action = $this->action;
 
-            if ($value === true ) {
-                return true;
+        // Opening 'rules' array
+        foreach ($this->access['rules'] as $key => $v) {
+
+            // if index 'allow' is set, he received
+            if ( isset ($v['allow']) ) {
+                $allow = $v['allow'];
             }
 
-            if ($attribute == 'roles' && is_array($value) ) {
-                
+            // if index 'actions' is not set or the called action exist on 'actions' value
+            if ( empty( $v['actions']) || in_array($action, $v['actions']) ) {
+            
+                // Check if exist setted roles, else return allow
+                if ( ! empty ($v['roles'])) {
+                    
+                    // Opening 'roles' array
+                    foreach ( $v['roles'] as $role) {
+                        
+                        // role = '@' to any logged user
+                        if ( $role == '@' && is_user_logged_in() ) {
+                            return $allow;
+                        }
+                        
+                        // role = '?' to any logged out user
+                        if ($role == '?' && ! is_user_logged_in()) {
+                            return $allow;
+                        }
+                        
+                        // Check if the current user role exist on 'roles'
+                        if ( in_array($role, $user->roles) ) {
+                            return $allow;
+                        }
+                    }
+
+                } else {
+                    return $allow;
+                }
             }
-
-            if ($attribute == 'actions' && is_array($value)) {
-                $action = $value;
-            }
-
-
-
         }
-
-        var_dump (wp_get_current_user()->roles);
-        // var_dump (current_user_can());
     }
 }
+

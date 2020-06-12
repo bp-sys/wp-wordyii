@@ -16,7 +16,11 @@ class WordyiiController
      */
     public function run()
     {
-        new WordyiiBehavior( $this->behaviors() );
+        // Receive the action passed by URL
+        $this->action = filter_input( INPUT_GET, 'action' );
+
+        // Create the Behavior class
+        new WordyiiBehavior( $this->behaviors(), $this->action );
 
         $this->beforeAction();
         $this->runAction();
@@ -58,12 +62,9 @@ class WordyiiController
 
         global $wp;
 
-        // var_dump($wp->request);
-        // var_dump($wp->query_vars);
-
         try{
             
-            $actionName = filter_input( INPUT_GET, 'action' );
+            $actionName = $this->action;
 
                 $method = 'action' . $actionName;
                 $class = get_called_class();
