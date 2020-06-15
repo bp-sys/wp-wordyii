@@ -7,11 +7,8 @@ class WordyiiAccessBehavior
     
     public function __construct($access, $action)
     {
-
         $this->access = $access;
         $this->action = $action;
-
-        var_dump ($this->run() );
     }
 
     /**
@@ -41,50 +38,71 @@ class WordyiiAccessBehavior
      */
     public function run()
     {
-        $allow = false;
-
         $user = wp_get_current_user();
 
-        $action = $this->action;
+        $calledAction = $this->action;
 
-        // Opening 'rules' array
-        foreach ($this->access['rules'] as $key => $v) {
+        // if doesn't have defined rule, default return false
+        if ( empty($this->access['rules']) ) {
+            return false;
+        }
+        
+        // Return the permission checking all the conditions rules
+        foreach($this->access['rules'] as $key => $v) {
 
-            // if index 'allow' is set, he received
+            // Define the return permission
             if ( isset ($v['allow']) ) {
                 $allow = $v['allow'];
+            } else {
+                $allow = false;
             }
 
-            // if index 'actions' is not set or the called action exist on 'actions' value
-            if ( empty( $v['actions']) || in_array($action, $v['actions']) ) {
-            
-                // Check if exist setted roles, else return allow
-                if ( ! empty ($v['roles'])) {
+            // Check all conditions
+            // Check if the called action exists on condition rules
+            if ( empty ($v['actions']) || in_array($calledAction, $v['actions']) ) {
+
+                // If any role in the rule matches the user conditions, return the permission
+                if (! empty ($v['roles']) ) {
                     
-                    // Opening 'roles' array
-                    foreach ( $v['roles'] as $role) {
-                        
+                    foreach ($v['roles'] as $role) {
+
                         // role = '@' to any logged user
-                        if ( $role == '@' && is_user_logged_in() ) {
+                        if ($role == '@' && is_user_logged_in() ) {
                             return $allow;
                         }
-                        
+
                         // role = '?' to any logged out user
-                        if ($role == '?' && ! is_user_logged_in()) {
+                        if ($role == '?' && ! is_user_logged_in() ) {
                             return $allow;
                         }
-                        
+
                         // Check if the current user role exist on 'roles'
                         if ( in_array($role, $user->roles) ) {
                             return $allow;
                         }
                     }
+                }
 
-                } else {
+                // Validate access by user permissions if any given
+    			if ( ! empty( $v['permissions'] ) ) {
+					foreach ($v['permissions'] as $permission) {
+						if ( current_user_can( $permission ) ) {
+							return $allow;
+						}
+					}
+                }
+
+                // If the user set one action, but not set a role or permission, return the permission (The rule will be valued for all roles)
+                if ( empty ($v['roles']) && empty($v['permissions']) ) {
                     return $allow;
                 }
             }
+            // Otherwise, continue to the next array
         }
+
+        // Se nenhum dos parâmetros se equivalerem, retorna falso
+        // If no parameters were found, return false
+        return false;
     }
 }
 

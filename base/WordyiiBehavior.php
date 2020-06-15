@@ -31,8 +31,9 @@ class WordyiiBehavior
                 // Receive the name class with namespace
                 $class = $namespace . $behaviorClass;
 
-                // Starts the class passing your parameters
+                // Starts the class passing its parameters
                 $obj = new $class( $value, $action );
+                $obj->run();
             }
         }
     }

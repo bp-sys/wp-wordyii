@@ -66,13 +66,13 @@ class WordyiiController
             
             $actionName = $this->action;
 
-                $method = 'action' . $actionName;
-                $class = get_called_class();
-                $object = new $class();
+            $method = 'action' . $actionName;
+            $class = get_called_class();
+            $object = new $class();
 
-                if ( method_exists($object, $method) ) {
-                    return $object->$method();
-                }
+            if ( method_exists($object, $method) ) {
+                return $object->$method();
+            }
 
             throw new \Exception("The action does not exist");
 

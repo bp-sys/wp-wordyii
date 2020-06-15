@@ -20,11 +20,11 @@ class WordyiiExampleController extends WordyiiController
                 'rules' => [
                     [
                         'allow' => true,
+                        'actions' => ['login'],
                         'roles' => ['administrator'],
                     ],[
                         'allow' => true,
-                        'actions' => ['index'],
-                        'roles' => ['gabriel'],
+                        'actions' => ['login'],
                     ],[
                         'allow' => false,
                     ]
