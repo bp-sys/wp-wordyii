@@ -242,17 +242,40 @@ abstract class WordyiiModel {
     * @global Object $wpdb
     * Return a unique object pulling from the database
     * @param array $condition Search conditions
+    * @param array $orderBy Search results ordenation. Default NULL
     * @return Object Object of the requested class. NULL if not found
     */
-    public static function findOne ($condition) {
+    public static function findOne ($condition, $orderBy = null) {
         global $wpdb;
         
         $query = "SELECT * FROM " . static::tableName();
         $query = static::prepareConditions($query, $condition);
+        
+        // Apply order
+        if ( !empty( $orderBy ) ) {
+            $order = '';
+
+            foreach ($orderBy as $idx => $v){
+                switch ($v) {
+                    case SORT_DESC:
+                        $orderValue = 'DESC';
+                        break;
+                    case SORT_ASC:
+                        $orderValue = 'ASC';
+                        break;
+                }
+                
+                $order .= $idx . " " . $orderValue . " ";
+            }
+            
+            if ( !empty( $order ) ) {
+                $query .= " ORDER BY " . $order;
+            }
+        }
 
         $result = $wpdb->get_row($query);
         
-        if ( !empty ($result) ) {
+        if ( !empty($result) ) {
             $result = static::cast($result);
 
             return $result;
@@ -287,74 +310,93 @@ abstract class WordyiiModel {
     private static function prepareConditions($query, $conditions) {
         global $wpdb;
         
-        $arr = [];
+        $queryArgs = [];
         $values = [];
         $operator = '=';
-        $like = '';
 
         foreach($conditions as $idx => $v) {
 
-            if ( is_array($conditions[$idx]) ) {
+            if ( !is_array( $conditions[$idx] ) ) {
+                array_push( $queryArgs, $idx . " = %s" );
+                array_push( $values, $v );
 
-                // ['like', 'name', 'search_text']
-                if ($v[$idx] == 'like') {
+            } else {
 
-                    // Inserts the attribute and string LIKE no $arr
-                    array_push($arr, $v[1] . " LIKE %s");
-                    // Inserts the value to be searched
-                    array_push($values, "%" . $wpdb->esc_like($v[2]) . "%");
-                    
-                    continue;
-                } 
-                
-                // ['=', 'id', 'value']
-                else if ($v[$idx] == '=') {
-                    
-                    $operator =     $v[0];
-                    $attribute =    $v[1];
-                    $value =        $v[2];
-    
-                    array_push($arr, $attribute . ' ' . $operator . ' ' . $value );
-                    continue;
-                }
-                
-                else if ($v[$idx] == '<=') {
-                    
-                    $operator =     $v[0];
-                    $attribute =    $v[1];
-                    $value =        $v[2];
-    
-                    array_push($arr, $attribute . ' ' . $operator . ' ' . $value );
-                    continue;
-                }
+                // Break the array into operator, attribute and value
+                $operator =     strtolower($v[0]);
+                $attribute =    $v[1];
+                $value =        $v[2];
 
-                else if ($v[$idx] == '>=') {
+                // Check and apply operator
+                switch ( $operator ) {
+                    // ['=', 'attribute', 'value']
+                    case '=':
+                    // ['>=', 'attribute', 'value']
+                    case '>=':
+                    // ['<=', 'attribute', 'value']
+                    case '<=':
+                    // ['>', 'attribute', 'value']
+                    case '>':
+                    // ['<', 'attribute', 'value']
+                    case '<':
+                    // ['<>', 'attribute', 'value']
+                    case '<>':
+                        array_push( $queryArgs, $attribute . ' ' . $operator . ' %s');
+                        array_push( $values, $value );
+                        break;
                     
-                    $operator =     $v[0];
-                    $attribute =    $v[1];
-                    $value =        $v[2];
-    
-                    array_push($arr, $attribute . ' ' . $operator . ' ' . $value );
-                    continue;
-                }
+                    // ['not', 'name', NULL]
+                    case 'not':
+                        // Differ operator string if the item is NULL
+                        if ( $value == NULL) {
+                            array_push( $queryArgs, $attribute . ' IS NOT NULL');
+                            
+                        } else {
+                            array_push( $queryArgs, $attribute . ' IS NOT %s');
+                            array_push( $values, $value );
+                        }
+                        break;
 
-                else if ($v[$idx] == '<>') {
-                    
-                    $operator =     $v[0];
-                    $attribute =    $v[1];
-                    $value =        $v[2];
-    
-                    array_push($arr, $attribute . ' ' . $operator . ' ' . $value );
-                    continue;
+                    // ['in', 'name', ['test', 'ok']]
+                    case 'in':
+                        // Only insert this validation if there is at least one item in the values array
+                        if ( count( $value ) > 0 ) {
+                            // Parse the values array to string
+                            $values_placeholders = implode( ', ', array_fill( 0, count( $value ), '%s' ) );
+                            array_push( $queryArgs, $attribute . " IN ($values_placeholders)" );
+                            $values = array_merge( $values, $value );
+                        }
+                        break;
+
+                    // ['not in', 'name', ['test', 'ok']]
+                    case 'not in':
+                        // Only insert this validation if there is at least one item in the values array
+                        if ( count( $value ) > 0 ) {
+                            // Parse the values array to string
+                            $values_placeholders = implode( ', ', array_fill( 0, count( $value ), '%s' ) );
+                            array_push( $queryArgs, $attribute . " NOT IN ($values_placeholders)" );
+                            $values = array_merge( $values, $value );
+                        }
+                        break;
+
+                    // ['like', 'name', 'search_text']
+                    case 'like':
+                        array_push( $queryArgs, $attribute . " LIKE %s" );
+                        // Properly scape esc like attribute
+                        array_push( $values, "%" . $wpdb->esc_like($value) . "%");
+                        break;
+
+                    // ['regexp', 'name', '[a-zA-Z ]*']
+                    case 'regexp':
+                        // This operation should be used with caution and the value validation should be run by the caller
+                        array_push( $queryArgs, $attribute ." REGEXP '". $value ."'" );
+                        break;
                 }
             } 
-                
-            array_push( $arr, $idx . " = %s" );
-            array_push( $values, $v );
         }
 
         // Separate query string by AND
-        $queryAtts = implode(' AND ', $arr);
+        $queryAtts = implode(' AND ', $queryArgs);
 
         $query .= " WHERE " . $queryAtts;
 

@@ -1,0 +1,7 @@
+{
+    "name": "bp-sys/wp-wordyii",
+    "description": "Framework for high-quality Wordpress plugins/themes",
+    "require": {
+        "php": "^7.2"
+    }
+}
