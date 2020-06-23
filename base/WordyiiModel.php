@@ -122,14 +122,28 @@ abstract class WordyiiModel {
      * @param integer $pageSize Maxibum number of objects to return. Default -1 (no pagination)
      * @return array Class object list.
      */
-    public static function find($conditions = null, $orderBy = null, $page = null, $pageSize = null) {
+    public static function find($conditions = null, $orderBy = null, $page = null, $pageSize = null, $columns = null) {
         global $wpdb;
 
         $arr = [];
         $values = [];
         $ordenerArray = [];
-        
-        $query = "SELECT * FROM " . static::tableName();
+
+        // If array is not null
+        // Set the values in columns array on a query string
+        if ($columns !== null) {
+            $columns = array_map(function($v) {
+                return "`$v`";
+            }, $columns);
+
+            $columnsQuery = implode(",", $columns);
+        } 
+        // Set the default query string, receive all columns
+        else {
+            $columnsQuery = "*";
+        }
+
+        $query = "SELECT $columnsQuery FROM " . static::tableName();
 
         if (! empty( $conditions ) ) {
 
@@ -245,10 +259,20 @@ abstract class WordyiiModel {
     * @param array $orderBy Search results ordenation. Default NULL
     * @return Object Object of the requested class. NULL if not found
     */
-    public static function findOne ($condition, $orderBy = null) {
+    public static function findOne ($condition, $orderBy = null, $columns) {
         global $wpdb;
+
+        if ($columns !== null) {
+            $columns = array_map(function($v) {
+                return "`$v`";
+            }, $columns);
+
+            $columnsQuery = implode(",", $columns);
+        } else {
+            $columnsQuery = "*";
+        }
         
-        $query = "SELECT * FROM " . static::tableName();
+        $query = "SELECT $columnsQuery FROM " . static::tableName();
         $query = static::prepareConditions($query, $condition);
         
         // Apply order

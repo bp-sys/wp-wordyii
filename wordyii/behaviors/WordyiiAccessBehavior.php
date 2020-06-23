@@ -100,7 +100,6 @@ class WordyiiAccessBehavior
             // Otherwise, continue to the next array
         }
 
-        // Se nenhum dos parâmetros se equivalerem, retorna falso
         // If no parameters were found, return false
         return false;
     }

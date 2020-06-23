@@ -7,12 +7,14 @@ define( 'CHILD_THEME_PATH', get_stylesheet_directory());
 define( 'WORDYII_URL', plugin_dir_url( __FILE__ ) );
 define( 'WORDYII_FILE', __FILE__ );
 
-require_once(WORDYII_PATH . 'wordyii/database/database.php');
-require_once(WORDYII_PATH . 'functions.php');
+// Include Wordyii base
+require_once(WORDYII_PATH . 'base/WordyiiModel.php');
 require_once(WORDYII_PATH . 'base/WordyiiBehavior.php');
-require_once(WORDYII_PATH . 'wordyii/behaviors/WordyiiAccessBehavior.php');
 require_once(WORDYII_PATH . 'base/WordyiiController.php');
 require_once(WORDYII_PATH . 'base/WordyiiView.php');
+// Include Wordyii init
+require_once(WORDYII_PATH . 'wordyii/database/database.php');
+require_once(WORDYII_PATH . 'wordyii/behaviors/WordyiiAccessBehavior.php');
 // Include page templates
 require_once(WORDYII_PATH . 'wordyii/views/pagetemplater.php' );
 
