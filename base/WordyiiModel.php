@@ -145,12 +145,12 @@ abstract class WordyiiModel {
 
         $query = "SELECT $columnsQuery FROM " . static::tableName();
 
-        if (! empty( $conditions ) ) {
+        if ( ! empty($conditions) ) {
 
             $query = static::prepareConditions($query, $conditions);
         }
 
-        if (! empty ( $orderBy )) {
+        if ( ! empty ( $orderBy ) ) {
 
             $order = '';
 
@@ -167,7 +167,7 @@ abstract class WordyiiModel {
                 $order .= $idx . " " . $orderValue . " ";
             }
             
-            if(! empty($order) ){
+            if ( ! empty($order) ){
                 $query .= " ORDER BY " . $order;
             }
         }
@@ -259,7 +259,7 @@ abstract class WordyiiModel {
     * @param array $orderBy Search results ordenation. Default NULL
     * @return Object Object of the requested class. NULL if not found
     */
-    public static function findOne ($condition, $orderBy = null, $columns) {
+    public static function findOne ($condition, $orderBy = null, $columns = null) {
         global $wpdb;
 
         if ($columns !== null) {
@@ -273,6 +273,7 @@ abstract class WordyiiModel {
         }
         
         $query = "SELECT $columnsQuery FROM " . static::tableName();
+
         $query = static::prepareConditions($query, $condition);
         
         // Apply order
@@ -332,20 +333,66 @@ abstract class WordyiiModel {
      * @return string $query Returns query with the prepared attribute condition
      */
     private static function prepareConditions($query, $conditions) {
-        global $wpdb;
         
+        global $wpdb;
+        $values = [];
+        
+        $result = static::prepareOperator($conditions);
+
+        $queryAtts = $result['logicalQuery'];
+
+        if (! empty ($result['values']) ) {
+            foreach ($result['values'] as $value) {
+                array_push($values, $value);
+            }
+        }
+        
+        $query .= " WHERE " . $queryAtts;
+        
+        $query = $wpdb->prepare($query, $values);
+
+        return $query;
+    }
+
+    /**
+     * Receive the conditions array to be prepared
+     * @param array $conditions
+     * $conditions = ['AND', ['=', 'name', 'john'], ['>', 'age', '18']]
+     * 
+     * @return array ['logicalQuery' => "name = '%s' AND age > '%s'"
+     *               'values' => ['john', '18']]
+     */
+    public static function prepareOperator($conditions) {
+
         $queryArgs = [];
         $values = [];
         $operator = '=';
+        $logicalOperator = 'AND';
 
         foreach($conditions as $idx => $v) {
 
-            if ( !is_array( $conditions[$idx] ) ) {
+            // Set the "name = %s" in queryArgs and value to array values if not be an AND or OR condition
+            if ( !is_array( $conditions[$idx] ) && $conditions[$idx] != 'AND' && $conditions[$idx] != 'OR') {
                 array_push( $queryArgs, $idx . " = %s" );
                 array_push( $values, $v );
+            }
 
-            } else {
+            // If array contains AND or OR operation condition, receive them and continue to next loop
+            if ($conditions[$idx] == 'AND' || $conditions[$idx] == 'OR') {
+                $logicalOperator = $conditions[$idx];
+                continue;
+            }
 
+            // If the index is array, and your first value is 'AND' or 'OR'
+            if ( is_array($v) && ($v[0] == 'AND' || $v[0] == 'OR') ) {
+                $result = static::prepareOperator($v);
+                array_push($queryArgs, $result['logicalQuery']);
+                foreach ($result['values'] as $value) {
+                    array_push($values, $value);
+                }
+            }
+            
+            if ( is_array ($conditions[$idx]) ) {
                 // Break the array into operator, attribute and value
                 $operator =     strtolower($v[0]);
                 $attribute =    $v[1];
@@ -365,7 +412,7 @@ abstract class WordyiiModel {
                     case '<':
                     // ['<>', 'attribute', 'value']
                     case '<>':
-                        array_push( $queryArgs, $attribute . ' ' . $operator . ' %s');
+                        array_push( $queryArgs, "$attribute $operator %s");
                         array_push( $values, $value );
                         break;
                     
@@ -416,18 +463,16 @@ abstract class WordyiiModel {
                         array_push( $queryArgs, $attribute ." REGEXP '". $value ."'" );
                         break;
                 }
-            } 
+            }
         }
 
-        // Separate query string by AND
-        $queryAtts = implode(' AND ', $queryArgs);
+        // Parse the array with the logical operator. default = 'AND'
+        $logicalQuery = '(' . implode (" $logicalOperator ", $queryArgs) . ')';
 
-        $query .= " WHERE " . $queryAtts;
-
-        $query = $wpdb->prepare($query, $values);
-
-        return $query;
+        return [
+            'logicalQuery' => $logicalQuery, 
+            'values' => $values,
+        ];
     }
-
 }
 

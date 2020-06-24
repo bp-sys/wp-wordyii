@@ -38,5 +38,10 @@ class WordyiiExampleController extends WordyiiController
         $this->render('index');
     }
 
+    public function actionLogin()
+    {
+        echo 'action Login';
+    }
+
 }
 
