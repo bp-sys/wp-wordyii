@@ -2,7 +2,7 @@
     "name": "bp-sys/wp-wordyii",
     "description": "Framework for high-quality Wordpress plugins/themes",
     "type": "library",
-    "license": "BSD 3-Clause License",
+    "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Gabriel Cezar Casseb",
@@ -13,18 +13,17 @@
             "email": "brunopanatta@gmail.com"
         }
     ],
+    "minimum-stability": "dev",
     "require": {
-        "php": "^7.2"
+        "php": ">=7.2.0"
     },
     "autoload": {
         "psr-4": {
-            "wordyii\\": [
-                ""
-            ]
+            "Wordyii\\": ["src/Wordyii"]
         }
     },
     "keywords": [
-        "API",
-        "WooCommerce"
+        "framework",
+        "Wordpress"
     ]
 }
