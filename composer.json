@@ -2,7 +2,7 @@
     "name": "bp-sys/wp-wordyii",
     "description": "Framework for high-quality Wordpress plugins/themes",
     "type": "library",
-    "license": "BSD 3-Clause License",
+    "license": "BSD 3-Clause \"New\" or \"Revised\" License",
     "authors": [
         {
             "name": "Gabriel Cezar Casseb",
