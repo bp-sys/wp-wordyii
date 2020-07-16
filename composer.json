@@ -13,18 +13,17 @@
             "email": "brunopanatta@gmail.com"
         }
     ],
+    "minimum-stability": "dev",
     "require": {
-        "php": "^7.2"
+        "php": ">=7.2.0"
     },
     "autoload": {
         "psr-4": {
-            "wordyii\\": [
-                ""
-            ]
+            "Wordyii": "src/"
         }
     },
     "keywords": [
-        "API",
-        "WooCommerce"
+        "framework",
+        "Wordpress"
     ]
 }
